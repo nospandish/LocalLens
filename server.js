@@ -108,7 +108,8 @@ const server = http.createServer(async (request, response) => {
     }
     const result = await searchRestaurants(body, {
       apiKey: process.env.GOOGLE_PLACES_API_KEY,
-      errorMessage: "I couldn’t find live restaurant data. Add GOOGLE_PLACES_API_KEY to your local .env file, then restart with node server.js.",
+      provider: process.env.PLACES_PROVIDER || "openstreetmap",
+      errorMessage: "I couldn’t find real restaurant data right now. Try again in a moment.",
     });
     sendJson(response, result.status, result.body);
     return;

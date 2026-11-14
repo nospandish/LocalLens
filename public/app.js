@@ -77,11 +77,11 @@ function rankRestaurants(preferences) {
   }).sort((left, right) => right.score - left.score || left.index - right.index).map(({ restaurant }) => restaurant);
 }
 
-function renderMatchMessage(preferences, isLive = false, fetchedAt = "") {
+function renderMatchMessage(preferences, isLive = false, fetchedAt = "", source = "OpenStreetMap") {
   const restaurantPart = preferences.restaurant ? ` for “${preferences.restaurant}”` : "";
-  elements.dataLabel.textContent = isLive ? "Live Google Places" : "Made-up sample data";
+  elements.dataLabel.textContent = isLive ? `Live ${source}` : "Made-up sample data";
   elements.matchMessage.textContent = isLive
-    ? `Live Google Places results for ${preferences.neighborhood} · ${preferences.food}${restaurantPart}. Crowd levels are not provided by Google Places.${fetchedAt ? ` Fetched ${new Date(fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`
+    ? `Live ${source} results for ${preferences.neighborhood} · ${preferences.food}${restaurantPart}. Reviews, hours, and crowd levels may be unavailable from this source.${fetchedAt ? ` Fetched ${new Date(fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`
     : `Demo matches for ${preferences.neighborhood} · ${preferences.food}${restaurantPart} · budget ${preferences.budget} · group size ${preferences.groupSize}.`;
 }
 
@@ -108,7 +108,7 @@ function cardMarkup(restaurant, compareIds) {
           <span class="review-group-label">${escapeHtml(group.label)}</span>
           <ul class="review-list">${group.clues.map((clue) => `<li>${escapeHtml(clue)}</li>`).join("")}</ul>
         </section>`).join("")}</div>
-      ${restaurant.sourceUrl ? `<a class="source-link" href="${escapeHtml(restaurant.sourceUrl)}" target="_blank" rel="noreferrer">View on Google Maps ↗</a>` : ""}
+      ${restaurant.sourceUrl ? `<a class="source-link" href="${escapeHtml(restaurant.sourceUrl)}" target="_blank" rel="noreferrer">View on ${escapeHtml(restaurant.sourceName || "source map")} ↗</a>` : ""}
       <label class="compare-toggle"><input type="checkbox" data-compare-id="${escapeHtml(restaurant.id)}" ${checked}> Compare this place</label>
     </article>`;
 }
@@ -131,7 +131,7 @@ function renderCompare(restaurants = rankRestaurants(state.preferences)) {
       <p><strong>Vibe:</strong> ${escapeHtml(restaurant.vibe)}</p>
       <p><strong>Crowd clue:</strong> ${escapeHtml(restaurant.crowd)}</p>
       <p><strong>Best for:</strong> ${escapeHtml(restaurant.labels.join(" · "))}</p>
-      <span class="info-chip">${selected[0]?.isLive ? "Google Places data · crowd not provided" : "Demo data · not live"}</span>
+      <span class="info-chip">${selected[0]?.isLive ? `${escapeHtml(selected[0].sourceName || "Live source")} data · crowd not provided` : "Demo data · not live"}</span>
     </article>`).join("");
 }
 
@@ -190,12 +190,12 @@ elements.form.addEventListener("submit", async (event) => {
     state.restaurants = liveData.restaurants;
     state.compareIds = [];
     saveState(state);
-    renderMatchMessage(preferences, true, liveData.fetchedAt);
+    renderMatchMessage(preferences, true, liveData.fetchedAt, liveData.source);
     renderCards(state.restaurants);
     renderCompare(state.restaurants);
     elements.formMessage.textContent = "Live restaurant data is ready. Asking the AI for one careful explanation…";
     try {
-      const answer = await askAi(preferences, state.restaurants, "Google Places", liveData.fetchedAt);
+      const answer = await askAi(preferences, state.restaurants, liveData.source, liveData.fetchedAt);
       renderSummary(answer);
       elements.formMessage.textContent = "Live places and AI explanation are ready. Crowd level is not provided by Google Places.";
     } catch (error) {

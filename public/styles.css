@@ -110,6 +110,7 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rg
 .safety-strip h2 { font-size: 1.15rem; }
 .safety-strip p { margin-bottom: 0; color: #7b6e4a; font-size: 0.9rem; }
 .site-footer { padding: 0 0 28px; display: flex; justify-content: space-between; color: var(--muted); font-size: 0.78rem; }
+.site-footer a { color: inherit; }
 
 @media (max-width: 850px) {
   .hero { grid-template-columns: 1fr; gap: 40px; padding-top: 30px; }

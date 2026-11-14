@@ -1,4 +1,5 @@
 const placesUrl = "https://places.googleapis.com/v1/places:searchText";
+const openStreetMapUrl = "https://nominatim.openstreetmap.org/search";
 const fieldMask = [
   "places.id",
   "places.displayName",
@@ -71,18 +72,83 @@ function mapPlace(place, fetchedAt) {
     reviews: reviews.map(reviewText).filter(Boolean).slice(0, 5),
     reviewGroups: labelReviewGroups(reviews),
     sourceUrl: place.googleMapsUri || "",
+    sourceName: "Google Maps",
     isLive: true,
     fetchedAt,
   };
 }
 
-export async function searchRestaurants(body, { apiKey, errorMessage = friendlyPlacesError }) {
+function mapOpenStreetMapPlace(place, fetchedAt) {
+  const name = place.namedetails?.name || place.display_name?.split(",")[0] || "Unnamed place";
+  const mapUrl = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(place.lat)}&mlon=${encodeURIComponent(place.lon)}#map=18/${encodeURIComponent(place.lat)}/${encodeURIComponent(place.lon)}`;
+  return {
+    id: `osm-${place.osm_type}-${place.osm_id}`,
+    name,
+    cuisine: place.extratags?.cuisine || place.type || "Restaurant",
+    price: "Price not listed",
+    address: place.display_name || "Address not listed",
+    crowd: "Not available from OpenStreetMap",
+    vibe: "Reviews not available from OpenStreetMap",
+    status: `OpenStreetMap · ${fetchedAt}`,
+    labels: ["real place", "reviews unavailable"],
+    keywords: [name, place.extratags?.cuisine || "", place.type || "restaurant"].filter(Boolean),
+    neighborhoods: [],
+    reasons: ["Real place name and address from OpenStreetMap.", "This no-billing source does not provide live reviews, hours, or crowd levels."],
+    reviews: [],
+    reviewGroups: [{ label: "reviews unavailable", clues: ["OpenStreetMap supplies place data here, not live reviews or crowd information."] }],
+    sourceUrl: mapUrl,
+    sourceName: "OpenStreetMap",
+    isLive: true,
+    fetchedAt,
+  };
+}
+
+async function searchOpenStreetMap(body, errorMessage) {
+  const neighborhood = body.neighborhood.trim();
+  const food = body.food.trim();
+  const restaurant = typeof body.restaurant === "string" ? body.restaurant.trim() : "";
+  const query = restaurant ? `${restaurant} restaurant in ${neighborhood}` : `restaurants in ${neighborhood}`;
+  const params = new URLSearchParams({
+    q: query,
+    format: "jsonv2",
+    addressdetails: "1",
+    namedetails: "1",
+    extratags: "1",
+    limit: "6",
+    "accept-language": "en",
+  });
+  try {
+    const response = await fetch(`${openStreetMapUrl}?${params}`, {
+      headers: {
+        "User-Agent": "LocalLens student prototype (restaurant search)",
+        Accept: "application/json",
+      },
+    });
+    if (!response.ok) return { status: 502, body: { error: errorMessage } };
+    const data = await response.json();
+    const fetchedAt = new Date().toISOString();
+    return {
+      status: 200,
+      body: {
+        restaurants: data.map((place) => mapOpenStreetMapPlace(place, fetchedAt)),
+        fetchedAt,
+        source: "OpenStreetMap",
+        crowdDataAvailable: false,
+      },
+    };
+  } catch {
+    return { status: 502, body: { error: errorMessage } };
+  }
+}
+
+export async function searchRestaurants(body, { apiKey, provider = "openstreetmap", errorMessage = friendlyPlacesError }) {
   const neighborhood = typeof body?.neighborhood === "string" ? body.neighborhood.trim() : "";
   const food = typeof body?.food === "string" ? body.food.trim() : "";
   const restaurant = typeof body?.restaurant === "string" ? body.restaurant.trim() : "";
   if (!neighborhood || !food) {
     return { status: 400, body: { error: "Add a neighborhood and what you want to eat first." } };
   }
+  if (provider !== "google") return searchOpenStreetMap(body, errorMessage);
   if (!apiKey) return { status: 503, body: { error: errorMessage } };
 
   const textQuery = `${restaurant ? `${restaurant} ` : ""}${food} restaurants in ${neighborhood}`;
