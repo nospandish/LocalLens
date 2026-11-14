@@ -2,7 +2,7 @@
 
 ## How to run
 
-1. Put the OpenAI key in a local `.env` file as `OPENAI_API_KEY=...`.
+1. Put `OPENAI_API_KEY=...` and `GOOGLE_PLACES_API_KEY=...` in a local `.env` file.
 2. Optionally set `OPENAI_MODEL=...`; the default is `gpt-6-luna` because no model was previously recorded.
 3. Run `node server.js`.
 4. Open `http://localhost:3000` in a browser.
@@ -12,16 +12,17 @@
 - Import the GitHub repository `nospandish/LocalLens` into Vercel.
 - Keep the project root as the repository root. No build command is needed.
 - Vercel serves the page from `public/` using `vercel.json` and runs `api/recommendations.js` as the small Node.js server function.
-- In Vercel Project Settings → Environment Variables, add `OPENAI_API_KEY` for Preview and Production. Keep the key out of the repository.
+- In Vercel Project Settings → Environment Variables, add `OPENAI_API_KEY` and `GOOGLE_PLACES_API_KEY` for Preview and Production. Keep both keys out of the repository.
 - `OPENAI_MODEL` is optional; if it is not set, LocalLens uses `gpt-6-luna`.
-- No other Vercel setting is required for this project.
+- In Google Cloud, enable Places API (New) and billing for the Google key. No other Vercel setting is required for this project.
 - For local work, keep using `node server.js` and a local `.env`. `.env*` stays ignored by Git.
 
 ## What’s done
 
 - Saved the project brief in `BRIEF.md`.
 - Built Version 1 around the four MVP features: vibe/crowd summary, labeled review clues, side-by-side comparison, and safe AI answers.
-- Added localStorage demo data with clearly labeled made-up sample restaurants.
+- Added localStorage demo data with clearly labeled made-up sample restaurants as a fallback.
+- Added a server-side Google Places search for real restaurants, addresses, ratings, hours, review excerpts, and Google Maps links. Crowd level stays clearly labeled as unavailable.
 - Added a small server proxy so the OpenAI key stays in `.env` and never reaches the page.
 - Added a friendly error when the key is missing, expired, or the network is unavailable.
 - Model: `gpt-6-luna` by default; set `OPENAI_MODEL` in `.env` to override it.

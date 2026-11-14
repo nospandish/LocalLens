@@ -36,10 +36,13 @@ export async function createRecommendation(body, {
   }
 
   const restaurants = Array.isArray(body.restaurants) ? body.restaurants.slice(0, 6) : [];
+  const isLivePlaces = body.source === "Google Places";
   const userMessage = [
-    "When it answers, use the user's request and the clearly labeled local demo evidence below.",
-    "The demo restaurant data is made up for this student prototype, not live data. Never present it as real-time or verified.",
-    "Return 3–5 short sentences in plain language. Start with the best fit, then estimated demo crowd and vibe, then 1–2 reasons. Mention that the crowd/vibe information is demo data.",
+    `When it answers, use the user's request and the clearly labeled ${isLivePlaces ? "Google Places" : "local demo"} evidence below.`,
+    isLivePlaces
+      ? `Google Places data was fetched at ${body.fetchedAt || "an unknown time"}. Google Places does not provide live crowd levels here, so say that crowd information is unavailable and never invent a crowd, wait time, or reservation status.`
+      : "The demo restaurant data is made up for this student prototype, not live data. Never present it as real-time or verified.",
+    `Return 3–5 short sentences in plain language. Start with the best fit, then the available crowd/opening information and vibe, then 1–2 reasons. Mention whether the information is live place data or demo data.`,
     `User request: neighborhood=${neighborhood}; food=${food}; restaurant=${body.restaurant || "not specified"}; budget=${body.budget || "not specified"}; group size=${body.groupSize || "not specified"}.`,
     `Local demo evidence: ${JSON.stringify(restaurants)}`,
   ].join("\n");

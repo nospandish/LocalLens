@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRecommendation, defaultModel } from "./src/openai.js";
+import { searchRestaurants } from "./src/places.js";
 
 const readFileAsync = promisify(readFile);
 const statAsync = promisify(stat);
@@ -93,6 +94,21 @@ const server = http.createServer(async (request, response) => {
       model: process.env.OPENAI_MODEL || defaultModel,
       briefPath: path.join(here, "BRIEF.md"),
       errorMessage: "I couldn’t reach the AI. Add OPENAI_API_KEY to your local .env file, then restart with node server.js.",
+    });
+    sendJson(response, result.status, result.body);
+    return;
+  }
+  if (request.method === "POST" && url.pathname === "/api/places") {
+    let body;
+    try {
+      body = await readJson(request);
+    } catch {
+      sendJson(response, 400, { error: "Please try that request again." });
+      return;
+    }
+    const result = await searchRestaurants(body, {
+      apiKey: process.env.GOOGLE_PLACES_API_KEY,
+      errorMessage: "I couldn’t find live restaurant data. Add GOOGLE_PLACES_API_KEY to your local .env file, then restart with node server.js.",
     });
     sendJson(response, result.status, result.body);
     return;

@@ -1,4 +1,4 @@
-import { loadState, resetState, saveState } from "/storage.js";
+import { getSampleRestaurants, loadState, resetState, saveState } from "/storage.js";
 
 let state = loadState();
 
@@ -14,6 +14,7 @@ const elements = {
   summary: document.querySelector("#aiSummary"),
   results: document.querySelector("#resultsGrid"),
   matchMessage: document.querySelector("#matchMessage"),
+  dataLabel: document.querySelector("#dataLabel"),
   compareSection: document.querySelector("#compareSection"),
   compareGrid: document.querySelector("#compareGrid"),
 };
@@ -76,9 +77,12 @@ function rankRestaurants(preferences) {
   }).sort((left, right) => right.score - left.score || left.index - right.index).map(({ restaurant }) => restaurant);
 }
 
-function renderMatchMessage(preferences) {
+function renderMatchMessage(preferences, isLive = false, fetchedAt = "") {
   const restaurantPart = preferences.restaurant ? ` for “${preferences.restaurant}”` : "";
-  elements.matchMessage.textContent = `Demo matches for ${preferences.neighborhood} · ${preferences.food}${restaurantPart} · budget ${preferences.budget} · group size ${preferences.groupSize}.`;
+  elements.dataLabel.textContent = isLive ? "Live Google Places" : "Made-up sample data";
+  elements.matchMessage.textContent = isLive
+    ? `Live Google Places results for ${preferences.neighborhood} · ${preferences.food}${restaurantPart}. Crowd levels are not provided by Google Places.${fetchedAt ? ` Fetched ${new Date(fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`
+    : `Demo matches for ${preferences.neighborhood} · ${preferences.food}${restaurantPart} · budget ${preferences.budget} · group size ${preferences.groupSize}.`;
 }
 
 function cardMarkup(restaurant, compareIds) {
@@ -104,6 +108,7 @@ function cardMarkup(restaurant, compareIds) {
           <span class="review-group-label">${escapeHtml(group.label)}</span>
           <ul class="review-list">${group.clues.map((clue) => `<li>${escapeHtml(clue)}</li>`).join("")}</ul>
         </section>`).join("")}</div>
+      ${restaurant.sourceUrl ? `<a class="source-link" href="${escapeHtml(restaurant.sourceUrl)}" target="_blank" rel="noreferrer">View on Google Maps ↗</a>` : ""}
       <label class="compare-toggle"><input type="checkbox" data-compare-id="${escapeHtml(restaurant.id)}" ${checked}> Compare this place</label>
     </article>`;
 }
@@ -126,7 +131,7 @@ function renderCompare(restaurants = rankRestaurants(state.preferences)) {
       <p><strong>Vibe:</strong> ${escapeHtml(restaurant.vibe)}</p>
       <p><strong>Crowd clue:</strong> ${escapeHtml(restaurant.crowd)}</p>
       <p><strong>Best for:</strong> ${escapeHtml(restaurant.labels.join(" · "))}</p>
-      <span class="info-chip">Demo data · not live</span>
+      <span class="info-chip">${selected[0]?.isLive ? "Google Places data · crowd not provided" : "Demo data · not live"}</span>
     </article>`).join("");
 }
 
@@ -140,15 +145,29 @@ function readPreferences() {
   };
 }
 
-async function askAi(preferences, restaurants) {
+async function askAi(preferences, restaurants, source = "Demo sample data", fetchedAt = "") {
   const response = await fetch("/api/recommendations", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...preferences, restaurants }),
+    body: JSON.stringify({ ...preferences, restaurants, source, fetchedAt }),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "The AI could not answer right now.");
   return data.answer;
+}
+
+async function fetchLiveRestaurants(preferences) {
+  const response = await fetch("/api/places", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(preferences),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Live restaurant data is unavailable right now.");
+  if (!Array.isArray(data.restaurants) || data.restaurants.length === 0) {
+    throw new Error("Google Places did not find restaurants for that search.");
+  }
+  return data;
 }
 
 elements.form.addEventListener("submit", async (event) => {
@@ -161,28 +180,37 @@ elements.form.addEventListener("submit", async (event) => {
 
   state.preferences = preferences;
   saveState(state);
-  const namedRestaurant = findNamedRestaurant(preferences.restaurant);
-  const rankedRestaurants = rankRestaurants(preferences);
-  renderMatchMessage(preferences);
-  renderCards(rankedRestaurants);
-  renderCompare(rankedRestaurants);
   elements.button.disabled = true;
-  elements.button.querySelector("span").textContent = "Thinking…";
-  elements.formMessage.textContent = "LocalLens is asking the AI once for this request.";
-  renderSummary("Thinking…");
+  elements.button.querySelector("span").textContent = "Finding…";
+  elements.formMessage.textContent = "Finding real restaurants from Google Places…";
+  renderSummary("Finding real places…");
 
   try {
-    const answer = await askAi(preferences, rankedRestaurants);
-    renderSummary(answer);
-    elements.formMessage.textContent = "Answer ready. Demo restaurant clues below are clearly labeled and not live.";
-  } catch (error) {
-    if (namedRestaurant) {
-      renderDemoRestaurantSummary(namedRestaurant);
-      elements.formMessage.textContent = "The named demo summary is ready. Add the local OpenAI key to also get the AI explanation.";
-    } else {
-      renderSummary(error.message, true);
-      elements.formMessage.textContent = "Try one of the named demo places below, or add the local OpenAI key.";
+    const liveData = await fetchLiveRestaurants(preferences);
+    state.restaurants = liveData.restaurants;
+    state.compareIds = [];
+    saveState(state);
+    renderMatchMessage(preferences, true, liveData.fetchedAt);
+    renderCards(state.restaurants);
+    renderCompare(state.restaurants);
+    elements.formMessage.textContent = "Live restaurant data is ready. Asking the AI for one careful explanation…";
+    try {
+      const answer = await askAi(preferences, state.restaurants, "Google Places", liveData.fetchedAt);
+      renderSummary(answer);
+      elements.formMessage.textContent = "Live places and AI explanation are ready. Crowd level is not provided by Google Places.";
+    } catch (error) {
+      renderSummary(`Live places loaded, but the AI explanation is unavailable. ${error.message}`, true);
+      elements.formMessage.textContent = "The live restaurant cards are ready; check the OpenAI key for the AI explanation.";
     }
+  } catch (error) {
+    state.restaurants = getSampleRestaurants();
+    state.compareIds = [];
+    saveState(state);
+    renderMatchMessage(preferences);
+    renderCards();
+    renderCompare();
+    renderSummary(error.message, true);
+    elements.formMessage.textContent = "Showing made-up samples while live restaurant data is unavailable.";
   } finally {
     elements.button.disabled = false;
     elements.button.querySelector("span").textContent = "Find my spot";
