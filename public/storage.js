@@ -11,6 +11,8 @@ const sampleRestaurants = [
     vibe: "Warm, calm, easy to talk",
     status: "Demo sample · not live",
     labels: ["quiet", "good for groups"],
+    keywords: ["comfort", "bowl", "vegetarian", "quiet", "conversation"],
+    neighborhoods: ["maple neighborhood", "northside"],
     reasons: ["Soft lighting and booth seating", "A flexible menu for different tastes"],
     reviews: [
       "Demo review clue: people mention a relaxed room.",
@@ -31,6 +33,8 @@ const sampleRestaurants = [
     vibe: "Bright, social, energetic",
     status: "Demo sample · not live",
     labels: ["good for groups", "usually crowded"],
+    keywords: ["tacos", "mexican", "fast", "lively", "street food"],
+    neighborhoods: ["maple neighborhood", "downtown"],
     reasons: ["Fast counter service", "A social room that works for a group"],
     reviews: [
       "Demo review clue: people describe a busy, cheerful room.",
@@ -51,6 +55,8 @@ const sampleRestaurants = [
     vibe: "Low-key, softly lit, thoughtful",
     status: "Demo sample · not live",
     labels: ["quiet", "usually crowded"],
+    keywords: ["seasonal", "dinner", "vegetarian", "quiet", "date night"],
+    neighborhoods: ["maple neighborhood", "riverside"],
     reasons: ["Lower music and smaller tables", "Good choice when conversation matters"],
     reviews: [
       "Demo review clue: people mention a peaceful atmosphere.",

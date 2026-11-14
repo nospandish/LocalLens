@@ -1,4 +1,4 @@
-import { getSampleRestaurants, loadState, resetState, saveState } from "/storage.js";
+import { loadState, resetState, saveState } from "/storage.js";
 
 let state = loadState();
 
@@ -13,6 +13,7 @@ const elements = {
   formMessage: document.querySelector("#formMessage"),
   summary: document.querySelector("#aiSummary"),
   results: document.querySelector("#resultsGrid"),
+  matchMessage: document.querySelector("#matchMessage"),
   compareSection: document.querySelector("#compareSection"),
   compareGrid: document.querySelector("#compareGrid"),
 };
@@ -52,6 +53,34 @@ function renderDemoRestaurantSummary(restaurant) {
   renderSummary(`${restaurant.name} is ${restaurant.crowd.toLowerCase()} with a ${restaurant.vibe.toLowerCase()} vibe. It is labeled ${restaurant.labels.join(" and ")}. This is made-up demo data, not a live crowd reading. ${restaurant.reasons[0]}.`);
 }
 
+function words(value) {
+  return String(value || "").toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 1);
+}
+
+function rankRestaurants(preferences) {
+  const foodWords = words(preferences.food);
+  const neighborhoodWords = words(preferences.neighborhood);
+  const requestedName = preferences.restaurant.toLowerCase();
+  const requestedFood = preferences.food.toLowerCase();
+
+  return [...state.restaurants].map((restaurant, index) => {
+    const searchable = [restaurant.name, restaurant.cuisine, restaurant.vibe, ...(restaurant.keywords || [])].join(" ").toLowerCase();
+    let score = 0;
+    score += foodWords.reduce((total, word) => total + (searchable.includes(word) ? 3 : 0), 0);
+    score += neighborhoodWords.reduce((total, word) => total + ((restaurant.neighborhoods || []).some((place) => place.includes(word)) ? 2 : 0), 0);
+    if (preferences.budget !== "Any" && restaurant.price === preferences.budget) score += 4;
+    if ((preferences.groupSize === "5+" || preferences.groupSize === "3–4") && restaurant.labels.includes("good for groups")) score += 4;
+    if (/quiet|calm|conversation/i.test(requestedFood) && restaurant.labels.includes("quiet")) score += 5;
+    if (requestedName && restaurant.name.toLowerCase().includes(requestedName)) score += 20;
+    return { restaurant, score, index };
+  }).sort((left, right) => right.score - left.score || left.index - right.index).map(({ restaurant }) => restaurant);
+}
+
+function renderMatchMessage(preferences) {
+  const restaurantPart = preferences.restaurant ? ` for “${preferences.restaurant}”` : "";
+  elements.matchMessage.textContent = `Demo matches for ${preferences.neighborhood} · ${preferences.food}${restaurantPart} · budget ${preferences.budget} · group size ${preferences.groupSize}.`;
+}
+
 function cardMarkup(restaurant, compareIds) {
   const checked = compareIds.includes(restaurant.id) ? "checked" : "";
   return `
@@ -79,12 +108,12 @@ function cardMarkup(restaurant, compareIds) {
     </article>`;
 }
 
-function renderCards() {
-  elements.results.innerHTML = state.restaurants.map((restaurant) => cardMarkup(restaurant, state.compareIds)).join("");
+function renderCards(restaurants = rankRestaurants(state.preferences)) {
+  elements.results.innerHTML = restaurants.map((restaurant) => cardMarkup(restaurant, state.compareIds)).join("");
 }
 
-function renderCompare() {
-  const selected = state.restaurants.filter((restaurant) => state.compareIds.includes(restaurant.id));
+function renderCompare(restaurants = rankRestaurants(state.preferences)) {
+  const selected = restaurants.filter((restaurant) => state.compareIds.includes(restaurant.id));
   if (selected.length < 2) {
     elements.compareSection.hidden = true;
     return;
@@ -111,11 +140,11 @@ function readPreferences() {
   };
 }
 
-async function askAi(preferences) {
+async function askAi(preferences, restaurants) {
   const response = await fetch("/api/recommendations", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...preferences, restaurants: getSampleRestaurants() }),
+    body: JSON.stringify({ ...preferences, restaurants }),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "The AI could not answer right now.");
@@ -133,13 +162,17 @@ elements.form.addEventListener("submit", async (event) => {
   state.preferences = preferences;
   saveState(state);
   const namedRestaurant = findNamedRestaurant(preferences.restaurant);
+  const rankedRestaurants = rankRestaurants(preferences);
+  renderMatchMessage(preferences);
+  renderCards(rankedRestaurants);
+  renderCompare(rankedRestaurants);
   elements.button.disabled = true;
   elements.button.querySelector("span").textContent = "Thinking…";
   elements.formMessage.textContent = "LocalLens is asking the AI once for this request.";
   renderSummary("Thinking…");
 
   try {
-    const answer = await askAi(preferences);
+    const answer = await askAi(preferences, rankedRestaurants);
     renderSummary(answer);
     elements.formMessage.textContent = "Answer ready. Demo restaurant clues below are clearly labeled and not live.";
   } catch (error) {
@@ -172,6 +205,7 @@ elements.results.addEventListener("change", (event) => {
 });
 
 setFormFromState();
+renderMatchMessage(state.preferences);
 renderCards();
 renderCompare();
 
@@ -179,6 +213,7 @@ renderCompare();
 window.resetLocalLensDemo = () => {
   state = resetState();
   setFormFromState();
+  renderMatchMessage(state.preferences);
   renderCards();
   renderCompare();
   renderSummary("Tell LocalLens your neighborhood and craving to get a short, careful recommendation.");

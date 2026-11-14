@@ -73,6 +73,7 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rg
 .summary-text { max-width: 800px; margin: 0; font-size: 1.05rem; }
 .results-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 20px; }
 .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 17px; }
+.match-message { margin: -9px 0 18px; color: var(--muted); font-size: 0.8rem; }
 .restaurant-card { position: relative; display: flex; flex-direction: column; padding: 21px; min-height: 350px; border: 1px solid var(--line); border-radius: 19px; background: var(--card); box-shadow: 0 8px 25px rgba(26, 67, 57, 0.04); }
 .restaurant-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
 .restaurant-card h3 { margin: 0; font-size: 1.25rem; letter-spacing: -0.035em; }

@@ -29,6 +29,7 @@
 - Added Vercel-ready routing and a shared AI helper for the local server and `api/recommendations.js`.
 - The restaurant name is optional: users can ask for good options first, then choose a place or compare two demo options. A named demo restaurant still gets a safe local crowd/vibe summary when the AI key is unavailable.
 - Review clues are now grouped under visible labels such as `quiet`, `good for groups`, and `usually crowded`.
+- Demo restaurant cards now reorder based on the neighborhood, food, budget, group size, and optional restaurant name entered in the form.
 - If the local AI message appears, create `.env` with `OPENAI_API_KEY=...` and restart `node server.js`; on Vercel, add the same variable in Project Settings and redeploy.
 
 Saves on this computer only for now.
