@@ -16,6 +16,10 @@ const sampleRestaurants = [
       "Demo review clue: people mention a relaxed room.",
       "Demo review clue: groups like the roomy tables.",
     ],
+    reviewGroups: [
+      { label: "quiet", clues: ["People mention a relaxed room."] },
+      { label: "good for groups", clues: ["Groups like the roomy tables."] },
+    ],
   },
   {
     id: "moonlight-tacos",
@@ -31,6 +35,10 @@ const sampleRestaurants = [
     reviews: [
       "Demo review clue: people describe a busy, cheerful room.",
       "Demo review clue: the line can make it feel lively.",
+    ],
+    reviewGroups: [
+      { label: "good for groups", clues: ["People describe a busy, cheerful room."] },
+      { label: "usually crowded", clues: ["The line can make it feel lively."] },
     ],
   },
   {
@@ -48,6 +56,10 @@ const sampleRestaurants = [
       "Demo review clue: people mention a peaceful atmosphere.",
       "Demo review clue: dinner hours can fill up quickly.",
     ],
+    reviewGroups: [
+      { label: "quiet", clues: ["People mention a peaceful atmosphere."] },
+      { label: "usually crowded", clues: ["Dinner hours can fill up quickly."] },
+    ],
   },
 ];
 
@@ -59,13 +71,25 @@ function defaultState() {
   };
 }
 
+function normalizeRestaurant(restaurant) {
+  if (Array.isArray(restaurant.reviewGroups)) return restaurant;
+  const clues = Array.isArray(restaurant.reviews) ? restaurant.reviews : [];
+  return {
+    ...restaurant,
+    reviewGroups: (restaurant.labels || []).map((label, index) => ({
+      label,
+      clues: clues[index] ? [String(clues[index]).replace(/^Demo review clue:\s*/i, "")] : [],
+    })).filter((group) => group.clues.length > 0),
+  };
+}
+
 export function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
     return {
       ...defaultState(),
       ...saved,
-      restaurants: Array.isArray(saved?.restaurants) ? saved.restaurants : sampleRestaurants,
+      restaurants: (Array.isArray(saved?.restaurants) ? saved.restaurants : sampleRestaurants).map(normalizeRestaurant),
     };
   } catch {
     return defaultState();
@@ -86,5 +110,5 @@ export function resetState() {
 }
 
 export function getSampleRestaurants() {
-  return sampleRestaurants;
+  return sampleRestaurants.map(normalizeRestaurant);
 }
