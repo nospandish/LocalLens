@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LocalLens turns restaurant crowd clues and vibe into one clear explanation." />
+    <title>LocalLens · Find your spot</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="LocalLens home">
+        <span class="brand-mark">L</span>
+        <span>LocalLens</span>
+      </a>
+      <div class="header-note"><span class="status-dot"></span>Safety + kindness first</div>
+    </header>
+
+    <main>
+      <section class="hero section-shell">
+        <div class="hero-copy">
+          <p class="eyebrow">A clearer way to choose nearby</p>
+          <h1>Find a place that feels right.</h1>
+          <p class="hero-text">LocalLens brings food, crowd clues, and vibe together in one simple explanation—so you can make the choice yourself.</p>
+        </div>
+
+        <form id="spotForm" class="search-card">
+          <div class="search-card-heading">
+            <div>
+              <p class="eyebrow">Start with what you know</p>
+              <h2>Find my spot</h2>
+            </div>
+            <span class="demo-pill">Student prototype</span>
+          </div>
+
+          <label for="neighborhood">Neighborhood</label>
+          <input id="neighborhood" name="neighborhood" placeholder="e.g. Maple neighborhood" required />
+
+          <label for="food">What do you want to eat?</label>
+          <input id="food" name="food" placeholder="e.g. tacos, something quiet, vegetarian" required />
+
+          <div class="form-grid">
+            <div>
+              <label for="budget">Budget</label>
+              <select id="budget" name="budget">
+                <option>Any</option>
+                <option>$</option>
+                <option>$$</option>
+                <option>$$$</option>
+              </select>
+            </div>
+            <div>
+              <label for="groupSize">Group size</label>
+              <select id="groupSize" name="groupSize">
+                <option>1</option>
+                <option selected>2</option>
+                <option>3–4</option>
+                <option>5+</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="restaurant">Have a restaurant in mind? <span class="optional">Optional</span></label>
+          <input id="restaurant" name="restaurant" placeholder="e.g. Cedar Bowl" />
+
+          <button id="findButton" type="submit"><span>Find my spot</span><span aria-hidden="true">→</span></button>
+          <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+          <p class="privacy-note">Your preferences stay in this browser. Your OpenAI key stays on the local server.</p>
+        </form>
+      </section>
+
+      <section class="section-shell explanation-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">One simple explanation</p>
+            <h2>See the choice, not a pile of tabs.</h2>
+          </div>
+          <p class="section-intro">LocalLens makes the difference easy to see: crowd clues, vibe labels, and reasons sit together. The samples below are made up for the prototype—not live restaurant data.</p>
+        </div>
+
+        <div id="aiSummary" class="ai-summary" aria-live="polite">
+          <div class="summary-icon">✦</div>
+          <div>
+            <p class="summary-kicker">AI guide</p>
+            <p class="summary-text">Tell LocalLens your neighborhood and craving to get a short, careful recommendation.</p>
+          </div>
+        </div>
+
+        <div class="results-heading">
+          <div>
+            <p class="eyebrow">Demo places</p>
+            <h2>What the vibe could feel like</h2>
+          </div>
+          <span class="demo-label">Made-up sample data</span>
+        </div>
+        <div id="resultsGrid" class="results-grid"></div>
+      </section>
+
+      <section id="compareSection" class="section-shell compare-section" hidden>
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">MVP feature 3</p>
+            <h2>Compare two places side by side.</h2>
+          </div>
+          <p class="section-intro">Choose two cards above. LocalLens keeps the tradeoff visible so the decision stays yours.</p>
+        </div>
+        <div id="compareGrid" class="compare-grid"></div>
+      </section>
+
+      <section class="safety-strip section-shell">
+        <div class="safety-icon">✓</div>
+        <div>
+          <h2>Human judgment stays in the loop.</h2>
+          <p>LocalLens never calls demo estimates real-time facts. Check the restaurant directly, use your own judgment, and ask a trusted adult for help when needed.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer section-shell">
+      <span>LocalLens · Version 1</span>
+      <span>Menu + crowd clues + vibe, together.</span>
+    </footer>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

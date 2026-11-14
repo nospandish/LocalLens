@@ -1,0 +1,10 @@
+{
+  "name": "locallens",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LocalLens helps people understand restaurant crowd clues and vibe.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
