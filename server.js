@@ -92,6 +92,7 @@ const server = http.createServer(async (request, response) => {
       apiKey: process.env.OPENAI_API_KEY,
       model: process.env.OPENAI_MODEL || defaultModel,
       briefPath: path.join(here, "BRIEF.md"),
+      errorMessage: "I couldn’t reach the AI. Add OPENAI_API_KEY to your local .env file, then restart with node server.js.",
     });
     sendJson(response, result.status, result.body);
     return;

@@ -12,7 +12,12 @@ function extractText(data) {
     .trim();
 }
 
-export async function createRecommendation(body, { apiKey, model = defaultModel, briefPath }) {
+export async function createRecommendation(body, {
+  apiKey,
+  model = defaultModel,
+  briefPath,
+  errorMessage = friendlyAiError,
+}) {
   const neighborhood = typeof body?.neighborhood === "string" ? body.neighborhood.trim() : "";
   const food = typeof body?.food === "string" ? body.food.trim() : "";
   if (!neighborhood || !food) {
@@ -20,7 +25,7 @@ export async function createRecommendation(body, { apiKey, model = defaultModel,
   }
 
   if (!apiKey) {
-    return { status: 503, body: { error: friendlyAiError } };
+    return { status: 503, body: { error: errorMessage } };
   }
 
   let brief;
@@ -54,14 +59,14 @@ export async function createRecommendation(body, { apiKey, model = defaultModel,
     });
 
     if (!openAiResponse.ok) {
-      return { status: 502, body: { error: friendlyAiError } };
+      return { status: 502, body: { error: errorMessage } };
     }
 
     const data = await openAiResponse.json();
     const answer = extractText(data);
-    if (!answer) return { status: 502, body: { error: friendlyAiError } };
+    if (!answer) return { status: 502, body: { error: errorMessage } };
     return { status: 200, body: { answer, model } };
   } catch {
-    return { status: 502, body: { error: friendlyAiError } };
+    return { status: 502, body: { error: errorMessage } };
   }
 }

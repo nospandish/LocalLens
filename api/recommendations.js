@@ -22,6 +22,7 @@ export default async function handler(request, response) {
     apiKey: process.env.OPENAI_API_KEY,
     model: process.env.OPENAI_MODEL || defaultModel,
     briefPath: path.join(here, "..", "BRIEF.md"),
+    errorMessage: "I couldn’t reach the AI. Add OPENAI_API_KEY in Vercel Project Settings, then redeploy.",
   });
   response.status(result.status).json(result.body);
 }
