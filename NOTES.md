@@ -7,6 +7,16 @@
 3. Run `node server.js`.
 4. Open `http://localhost:3000` in a browser.
 
+## How to put it online with Vercel
+
+- Import the GitHub repository `nospandish/LocalLens` into Vercel.
+- Keep the project root as the repository root. No build command is needed.
+- Vercel serves the page from `public/` using `vercel.json` and runs `api/recommendations.js` as the small Node.js server function.
+- In Vercel Project Settings → Environment Variables, add `OPENAI_API_KEY` for Preview and Production. Keep the key out of the repository.
+- `OPENAI_MODEL` is optional; if it is not set, LocalLens uses `gpt-6-luna`.
+- No other Vercel setting is required for this project.
+- For local work, keep using `node server.js` and a local `.env`. `.env*` stays ignored by Git.
+
 ## What’s done
 
 - Saved the project brief in `BRIEF.md`.
@@ -16,6 +26,7 @@
 - Added a friendly error when the key is missing, expired, or the network is unavailable.
 - Model: `gpt-6-luna` by default; set `OPENAI_MODEL` in `.env` to override it.
 - The preview and localStorage save flow work. The real AI call is ready but needs a local `.env` key in this workspace before it can be tested.
+- Added Vercel-ready routing and a shared AI helper for the local server and `api/recommendations.js`.
 
 Saves on this computer only for now.
 
