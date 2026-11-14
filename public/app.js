@@ -121,8 +121,8 @@ async function askAi(preferences) {
 elements.form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const preferences = readPreferences();
-  if (!preferences.neighborhood || !preferences.food || !preferences.restaurant) {
-    elements.formMessage.textContent = "Add a neighborhood, what you want to eat, and a restaurant name first.";
+  if (!preferences.neighborhood || !preferences.food) {
+    elements.formMessage.textContent = "Add a neighborhood and what you want to eat first.";
     return;
   }
 
