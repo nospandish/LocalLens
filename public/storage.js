@@ -62,7 +62,11 @@ function defaultState() {
 export function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    return { ...defaultState(), ...saved, restaurants: sampleRestaurants };
+    return {
+      ...defaultState(),
+      ...saved,
+      restaurants: Array.isArray(saved?.restaurants) ? saved.restaurants : sampleRestaurants,
+    };
   } catch {
     return defaultState();
   }
@@ -72,6 +76,7 @@ export function saveState(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     preferences: state.preferences,
     compareIds: state.compareIds,
+    restaurants: state.restaurants,
   }));
 }
 
