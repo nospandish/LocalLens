@@ -42,6 +42,16 @@ function renderSummary(text, isError = false) {
     </div>`;
 }
 
+function findNamedRestaurant(name) {
+  const normalized = name.trim().toLowerCase();
+  return state.restaurants.find((restaurant) => restaurant.name.toLowerCase() === normalized)
+    || state.restaurants.find((restaurant) => restaurant.name.toLowerCase().includes(normalized));
+}
+
+function renderDemoRestaurantSummary(restaurant) {
+  renderSummary(`${restaurant.name} is ${restaurant.crowd.toLowerCase()} with a ${restaurant.vibe.toLowerCase()} vibe. It is labeled ${restaurant.labels.join(" and ")}. This is made-up demo data, not a live crowd reading. ${restaurant.reasons[0]}.`);
+}
+
 function cardMarkup(restaurant, compareIds) {
   const checked = compareIds.includes(restaurant.id) ? "checked" : "";
   return `
@@ -111,10 +121,14 @@ async function askAi(preferences) {
 elements.form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const preferences = readPreferences();
-  if (!preferences.neighborhood || !preferences.food) return;
+  if (!preferences.neighborhood || !preferences.food || !preferences.restaurant) {
+    elements.formMessage.textContent = "Add a neighborhood, what you want to eat, and a restaurant name first.";
+    return;
+  }
 
   state.preferences = preferences;
   saveState(state);
+  const namedRestaurant = findNamedRestaurant(preferences.restaurant);
   elements.button.disabled = true;
   elements.button.querySelector("span").textContent = "Thinking…";
   elements.formMessage.textContent = "LocalLens is asking the AI once for this request.";
@@ -125,8 +139,13 @@ elements.form.addEventListener("submit", async (event) => {
     renderSummary(answer);
     elements.formMessage.textContent = "Answer ready. Demo restaurant clues below are clearly labeled and not live.";
   } catch (error) {
-    renderSummary(error.message, true);
-    elements.formMessage.textContent = "You can still compare the made-up sample places below.";
+    if (namedRestaurant) {
+      renderDemoRestaurantSummary(namedRestaurant);
+      elements.formMessage.textContent = "The named demo summary is ready. Add the local OpenAI key to also get the AI explanation.";
+    } else {
+      renderSummary(error.message, true);
+      elements.formMessage.textContent = "Try one of the named demo places below, or add the local OpenAI key.";
+    }
   } finally {
     elements.button.disabled = false;
     elements.button.querySelector("span").textContent = "Find my spot";

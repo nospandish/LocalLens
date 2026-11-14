@@ -27,6 +27,7 @@
 - Model: `gpt-6-luna` by default; set `OPENAI_MODEL` in `.env` to override it.
 - The preview and localStorage save flow work. The real AI call is ready but needs a local `.env` key in this workspace before it can be tested.
 - Added Vercel-ready routing and a shared AI helper for the local server and `api/recommendations.js`.
+- The named-restaurant MVP flow now requires a restaurant name and can show a safe local demo crowd/vibe summary even when the AI key is unavailable.
 
 Saves on this computer only for now.
 
