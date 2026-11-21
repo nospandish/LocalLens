@@ -35,6 +35,7 @@
 - Added Vercel-ready routing and a shared AI helper for the local server and `api/recommendations.js`.
 - The restaurant name is optional: users can ask for good options first, then choose a place or compare two demo options. A named demo restaurant still gets a safe local crowd/vibe summary when the AI key is unavailable.
 - Review clues are now grouped under visible labels such as `quiet`, `good for groups`, and `usually crowded`.
+- Verified the side-by-side comparison flow: two selected cards render together with their own vibe, crowd clue, labels, and data status; a third selection is blocked.
 - Demo restaurant cards now reorder based on the neighborhood, food, budget, group size, and optional restaurant name entered in the form.
 - If the local AI message appears, fill in `KEYGEN_URL` and `KEYGEN_TOKEN` in `.env` and restart `node server.js`; on Vercel, add those two variables in Project Settings and redeploy. Request failures include a safe user message and a separate fix that is logged by the server.
 
