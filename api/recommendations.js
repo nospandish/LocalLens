@@ -19,10 +19,10 @@ export default async function handler(request, response) {
   }
 
   const result = await createRecommendation(body, {
-    apiKey: process.env.OPENAI_API_KEY,
     model: process.env.OPENAI_MODEL || defaultModel,
     briefPath: path.join(here, "..", "BRIEF.md"),
-    errorMessage: "I couldn’t reach the AI. Add OPENAI_API_KEY in Vercel Project Settings, then redeploy.",
+    errorMessage: "I couldn’t reach the AI right now.",
   });
+  if (result.body?.error?.fix) console.error(`LocalLens fix: ${result.body.error.fix}`);
   response.status(result.status).json(result.body);
 }

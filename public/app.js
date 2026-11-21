@@ -44,6 +44,12 @@ function renderSummary(text, isError = false) {
     </div>`;
 }
 
+function getErrorMessage(data, fallback) {
+  if (typeof data?.error === "string") return data.error;
+  if (data?.error?.message) return data.error.message;
+  return fallback;
+}
+
 function findNamedRestaurant(name) {
   const normalized = name.trim().toLowerCase();
   return state.restaurants.find((restaurant) => restaurant.name.toLowerCase() === normalized)
@@ -152,7 +158,7 @@ async function askAi(preferences, restaurants, source = "Demo sample data", fetc
     body: JSON.stringify({ ...preferences, restaurants, source, fetchedAt }),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "The AI could not answer right now.");
+  if (!response.ok) throw new Error(getErrorMessage(data, "The AI could not answer right now."));
   return data.answer;
 }
 
@@ -163,7 +169,7 @@ async function fetchLiveRestaurants(preferences) {
     body: JSON.stringify(preferences),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Live restaurant data is unavailable right now.");
+  if (!response.ok) throw new Error(getErrorMessage(data, "Live restaurant data is unavailable right now."));
   if (!Array.isArray(data.restaurants) || data.restaurants.length === 0) {
     throw new Error("Google Places did not find restaurants for that search.");
   }

@@ -2,7 +2,7 @@
 
 ## How to run
 
-1. Optionally put `OPENAI_API_KEY=...` in a local `.env` file for the AI explanation.
+1. Put `KEYGEN_URL=...` and `KEYGEN_TOKEN=...` in the local `.env` file for the AI key service. The server gets the short-lived AI key through `getKey()`; the browser never sees the key or token.
 2. OpenStreetMap live place search is the default and does not need a billing key.
 3. Optionally set `PLACES_PROVIDER=google` with `GOOGLE_PLACES_API_KEY=...` if a billing-enabled Google project is available.
 4. Optionally set `OPENAI_MODEL=...`; the default is `gpt-6-luna` because no model was previously recorded.
@@ -14,7 +14,7 @@
 - Import the GitHub repository `nospandish/LocalLens` into Vercel.
 - Keep the project root as the repository root. No build command is needed.
 - Vercel serves the page from `public/` using `vercel.json` and runs `api/recommendations.js` as the small Node.js server function.
-- In Vercel Project Settings → Environment Variables, add `OPENAI_API_KEY` for Preview and Production if you want the AI explanation. No place-data key is needed for the default OpenStreetMap search.
+- In Vercel Project Settings → Environment Variables, add `KEYGEN_URL` and `KEYGEN_TOKEN` for Preview and Production. The server gets the AI key through `getKey()`; do not add an OpenAI key to the code or page. No place-data key is needed for the default OpenStreetMap search.
 - `OPENAI_MODEL` is optional; if it is not set, LocalLens uses `gpt-6-luna`.
 - If `PLACES_PROVIDER=google` is chosen, add `GOOGLE_PLACES_API_KEY`, enable Places API (New), and enable billing in Google Cloud. Otherwise no other Vercel setting is required for place search.
 - For local work, keep using `node server.js` and a local `.env`. `.env*` stays ignored by Git.
@@ -35,7 +35,7 @@
 - The restaurant name is optional: users can ask for good options first, then choose a place or compare two demo options. A named demo restaurant still gets a safe local crowd/vibe summary when the AI key is unavailable.
 - Review clues are now grouped under visible labels such as `quiet`, `good for groups`, and `usually crowded`.
 - Demo restaurant cards now reorder based on the neighborhood, food, budget, group size, and optional restaurant name entered in the form.
-- If the local AI message appears, create `.env` with `OPENAI_API_KEY=...` and restart `node server.js`; on Vercel, add the same variable in Project Settings and redeploy.
+- If the local AI message appears, fill in `KEYGEN_URL` and `KEYGEN_TOKEN` in `.env` and restart `node server.js`; on Vercel, add those two variables in Project Settings and redeploy. Request failures include a safe user message and a separate fix that is logged by the server.
 
 Saves on this computer only for now.
 

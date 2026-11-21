@@ -42,6 +42,10 @@ function sendJson(response, status, body) {
   response.end(JSON.stringify(body));
 }
 
+function logFix(body) {
+  if (body?.error?.fix) console.error(`LocalLens fix: ${body.error.fix}`);
+}
+
 function contentType(filePath) {
   return {
     ".html": "text/html; charset=utf-8",
@@ -90,11 +94,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
     const result = await createRecommendation(body, {
-      apiKey: process.env.OPENAI_API_KEY,
       model: process.env.OPENAI_MODEL || defaultModel,
       briefPath: path.join(here, "BRIEF.md"),
-      errorMessage: "I couldn’t reach the AI. Add OPENAI_API_KEY to your local .env file, then restart with node server.js.",
+      errorMessage: "I couldn’t reach the AI right now.",
     });
+    logFix(result.body);
     sendJson(response, result.status, result.body);
     return;
   }
