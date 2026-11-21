@@ -78,6 +78,8 @@ The user enters a neighborhood and food preference, then taps “Find my spot.�
 - Never recommend a place without explaining the reason.
 - Never ignore the user’s budget, dietary needs, or preferences.
 - Never reveal private user information or make unsafe recommendations.
+- For every vibe, crowd, or group label it mentions, use only the matching `reviewGroups[].clues` as evidence.
+- If a label has no supporting clue or the source says evidence is unavailable, say that the evidence is unavailable. Never infer a label from a name, cuisine, rating, or missing field.
 
 ### Input handling and safety
 

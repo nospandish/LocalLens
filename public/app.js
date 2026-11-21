@@ -158,10 +158,11 @@ function cardMarkup(restaurant, compareIds) {
       <p>${escapeHtml(restaurant.vibe)}</p>
       <h4>Why it may fit</h4>
       <ul class="reason-list">${restaurant.reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}</ul>
-      <h4>Review clues, sorted by label</h4>
+      <h4>Evidence for each label</h4>
       <div class="review-groups">${restaurant.reviewGroups.map((group) => `
         <section class="review-group">
           <span class="review-group-label">${escapeHtml(group.label)}</span>
+          <p class="evidence-caption">Evidence used for this label:</p>
           <ul class="review-list">${group.clues.map((clue) => `<li>${escapeHtml(clue)}</li>`).join("")}</ul>
         </section>`).join("")}</div>
       ${restaurant.sourceUrl ? `<a class="source-link" href="${escapeHtml(restaurant.sourceUrl)}" target="_blank" rel="noreferrer">View on ${escapeHtml(restaurant.sourceName || "source map")} ↗</a>` : ""}

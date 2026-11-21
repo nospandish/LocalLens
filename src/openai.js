@@ -52,9 +52,10 @@ export async function createRecommendation(body, {
     isLivePlaces
       ? `${sourceName} data was fetched at ${body.fetchedAt || "an unknown time"}. Use only the fields provided. If crowd, wait time, hours, or reviews are missing, say that information is unavailable and never invent it.`
       : "The demo restaurant data is made up for this student prototype, not live data. Never present it as real-time or verified.",
+    "For every vibe, crowd, or group label you mention, use only the matching reviewGroups[].clues as evidence. If a label has no clue or the source says evidence is unavailable, say the evidence is unavailable. Do not infer a label from a name, cuisine, rating, or missing field.",
     `Return 3–5 short sentences in plain language. Start with the best fit, then the available crowd/opening information and vibe, then 1–2 reasons. Mention whether the information is live place data or demo data.`,
     `User request: neighborhood=${neighborhood}; food=${food}; restaurant=${body.restaurant || "not specified"}; budget=${body.budget || "not specified"}; group size=${body.groupSize || "not specified"}.`,
-    `Local demo evidence: ${JSON.stringify(restaurants)}`,
+    `Restaurant evidence: ${JSON.stringify(restaurants)}`,
   ].join("\n");
 
   async function askOpenAi(apiKey) {
