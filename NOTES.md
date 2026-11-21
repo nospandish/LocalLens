@@ -26,6 +26,7 @@
 - Built Version 1 around the four MVP features: vibe/crowd summary, labeled review clues, side-by-side comparison, and safe AI answers.
 - Added localStorage demo data with clearly labeled made-up sample restaurants as a fallback.
 - Added a server-side OpenStreetMap search for real restaurant/place names and addresses without billing. Reviews, hours, and crowd levels stay clearly labeled as unavailable.
+- Clarified live-source limits: OpenStreetMap timestamps the place details it returns, while crowd readings, reviews, and opening hours show that the source does not provide them instead of looking like collection failures.
 - Kept Google Places as an optional provider, not the default.
 - OpenStreetMap requests happen only after a user submits the form; keep use moderate and do not add autocomplete or background polling. Attribution is shown in the footer.
 - Added a small server proxy so the OpenAI key stays in `.env` and never reaches the page.

@@ -50,8 +50,8 @@ function labelReviewGroups(reviews) {
   return labeled.length ? labeled : [{ label: "review clues limited", clues: ["Google Places returned reviews, but not enough matching wording for a label."] }];
 }
 
-function collection(source, fetchedAt, fields) {
-  return { source, fetchedAt, fields };
+function collection(source, fetchedAt, fields, unavailable = {}) {
+  return { source, fetchedAt, fields, unavailable };
 }
 
 function mapPlace(place, fetchedAt) {
@@ -79,16 +79,24 @@ function mapPlace(place, fetchedAt) {
     sourceName: "Google Maps",
     isLive: true,
     fetchedAt,
-    collection: collection("Google Maps", fetchedAt, {
-      name: fetchedAt,
-      cuisine: fetchedAt,
-      price: fetchedAt,
-      address: fetchedAt,
-      status: fetchedAt,
-      crowd: null,
-      vibe: reviews.length ? fetchedAt : null,
-      reviews: reviews.length ? fetchedAt : null,
-    }),
+    collection: collection(
+      "Google Maps",
+      fetchedAt,
+      {
+        name: fetchedAt,
+        cuisine: fetchedAt,
+        price: fetchedAt,
+        address: fetchedAt,
+        status: fetchedAt,
+        crowd: null,
+        vibe: reviews.length ? fetchedAt : null,
+        reviews: reviews.length ? fetchedAt : null,
+      },
+      {
+        crowd: "Not provided by Google Places here · no collection time",
+        ...(reviews.length ? {} : { vibe: "No review-based vibe returned · no collection time", reviews: "No reviews returned · no collection time" }),
+      },
+    ),
   };
 }
 
@@ -114,16 +122,27 @@ function mapOpenStreetMapPlace(place, fetchedAt) {
     sourceName: "OpenStreetMap",
     isLive: true,
     fetchedAt,
-    collection: collection("OpenStreetMap", fetchedAt, {
-      name: fetchedAt,
-      cuisine: fetchedAt,
-      price: null,
-      address: fetchedAt,
-      status: null,
-      crowd: null,
-      vibe: null,
-      reviews: null,
-    }),
+    collection: collection(
+      "OpenStreetMap",
+      fetchedAt,
+      {
+        name: fetchedAt,
+        cuisine: fetchedAt,
+        price: null,
+        address: fetchedAt,
+        status: null,
+        crowd: null,
+        vibe: null,
+        reviews: null,
+      },
+      {
+        price: "Price not listed by OpenStreetMap · no collection time",
+        status: "Opening hours not provided by OpenStreetMap · no collection time",
+        crowd: "Live crowd readings are not provided by OpenStreetMap · no collection time",
+        vibe: "Review-based vibe is not provided by OpenStreetMap · no collection time",
+        reviews: "Reviews are not provided by OpenStreetMap · no collection time",
+      },
+    ),
   };
 }
 
@@ -158,6 +177,7 @@ async function searchOpenStreetMap(body, errorMessage) {
         fetchedAt,
         source: "OpenStreetMap",
         crowdDataAvailable: false,
+        sourceCapabilities: { placeDetails: true, reviews: false, crowd: false, openingHours: false },
       },
     };
   } catch {
@@ -196,6 +216,7 @@ export async function searchRestaurants(body, { apiKey, provider = "openstreetma
         fetchedAt,
         source: "Google Places",
         crowdDataAvailable: false,
+        sourceCapabilities: { placeDetails: true, reviews: true, crowd: false, openingHours: true },
       },
     };
   } catch {

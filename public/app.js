@@ -41,6 +41,8 @@ function collectionValue(restaurant, field) {
   const hasField = fields && Object.prototype.hasOwnProperty.call(fields, field);
   const timestamp = hasField ? fields[field] : (restaurant.isLive ? restaurant.fetchedAt : null);
   const source = restaurant.collection?.source || restaurant.sourceName || "live source";
+  const unavailable = restaurant.collection?.unavailable?.[field];
+  if (unavailable) return unavailable;
   if (!timestamp) return restaurant.isLive ? `Not available from ${source}` : "Demo data · not collected live";
 
   const date = new Date(timestamp);
@@ -117,11 +119,19 @@ function rankRestaurants(preferences) {
   }).sort((left, right) => right.score - left.score || left.index - right.index).map(({ restaurant }) => restaurant);
 }
 
-function renderMatchMessage(preferences, isLive = false, fetchedAt = "", source = "OpenStreetMap") {
+function renderMatchMessage(preferences, isLive = false, fetchedAt = "", source = "OpenStreetMap", sourceCapabilities = {}) {
   const restaurantPart = preferences.restaurant ? ` for “${preferences.restaurant}”` : "";
+  const limits = [
+    sourceCapabilities.crowd === false ? "live crowd readings" : "",
+    sourceCapabilities.reviews === false ? "reviews" : "",
+    sourceCapabilities.openingHours === false ? "opening hours" : "",
+  ].filter(Boolean);
+  const limitation = limits.length
+    ? ` ${source} does not provide ${limits.join(", ").replace(/, ([^,]*)$/, " or $1")} for this search.`
+    : "";
   elements.dataLabel.textContent = isLive ? `Live ${source}` : "Made-up sample data";
   elements.matchMessage.textContent = isLive
-    ? `Live ${source} results for ${preferences.neighborhood} · ${preferences.food}${restaurantPart}. Reviews, hours, and crowd levels may be unavailable from this source.${fetchedAt ? ` Fetched ${new Date(fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`
+    ? `Live ${source} results for ${preferences.neighborhood} · ${preferences.food}${restaurantPart}.${limitation}${fetchedAt ? ` Place details fetched ${new Date(fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`
     : `Demo matches for ${preferences.neighborhood} · ${preferences.food}${restaurantPart} · budget ${preferences.budget} · group size ${preferences.groupSize}.`;
 }
 
@@ -231,7 +241,7 @@ elements.form.addEventListener("submit", async (event) => {
     state.restaurants = liveData.restaurants;
     state.compareIds = [];
     saveState(state);
-    renderMatchMessage(preferences, true, liveData.fetchedAt, liveData.source);
+    renderMatchMessage(preferences, true, liveData.fetchedAt, liveData.source, liveData.sourceCapabilities);
     renderCards(state.restaurants);
     renderCompare(state.restaurants);
     elements.formMessage.textContent = "Live restaurant data is ready. Asking the AI for one careful explanation…";
