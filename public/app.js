@@ -61,6 +61,11 @@ function collectionMarkup(restaurant) {
     </details>`;
 }
 
+function googleMapsSearchUrl(restaurant) {
+  const query = encodeURIComponent(`${restaurant.name}, ${restaurant.address}`);
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+}
+
 function setFormFromState() {
   const { neighborhood, food, restaurant, budget, groupSize } = state.preferences;
   elements.neighborhood.value = neighborhood;
@@ -160,6 +165,7 @@ function cardMarkup(restaurant, compareIds) {
           <ul class="review-list">${group.clues.map((clue) => `<li>${escapeHtml(clue)}</li>`).join("")}</ul>
         </section>`).join("")}</div>
       ${restaurant.sourceUrl ? `<a class="source-link" href="${escapeHtml(restaurant.sourceUrl)}" target="_blank" rel="noreferrer">View on ${escapeHtml(restaurant.sourceName || "source map")} ↗</a>` : ""}
+      ${restaurant.isLive ? `<a class="source-link live-check-link" href="${escapeHtml(googleMapsSearchUrl(restaurant))}" target="_blank" rel="noreferrer">Check live crowd, reviews & hours in Google Maps ↗</a>` : ""}
       <label class="compare-toggle"><input type="checkbox" data-compare-id="${escapeHtml(restaurant.id)}" ${checked}> Compare this place</label>
     </article>`;
 }
