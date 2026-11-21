@@ -82,6 +82,13 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rg
 .info-chip, .vibe-label { display: inline-block; border-radius: 999px; padding: 5px 9px; font-size: 0.73rem; font-weight: 750; }
 .info-chip { color: #7d5b00; background: #fff5ce; }
 .vibe-label { color: var(--green-dark); background: var(--mint); }
+.collection-details { margin: 0 0 2px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfb; font-size: 0.76rem; }
+.collection-details summary { padding: 9px 10px; color: var(--green-dark); cursor: pointer; font-weight: 800; }
+.collection-source { margin: 0; padding: 0 10px 6px; color: var(--muted); font-size: 0.72rem; }
+.collection-list { margin: 0; padding: 0 10px 9px; }
+.collection-list div { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-top: 1px solid #edf2ee; }
+.collection-list dt { color: var(--muted); }
+.collection-list dd { margin: 0; color: var(--ink); text-align: right; }
 .restaurant-card h4 { margin: 17px 0 5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.68rem; }
 .restaurant-card p { margin-bottom: 7px; font-size: 0.88rem; }
 .reason-list { margin: 0; padding-left: 18px; color: var(--muted); font-size: 0.83rem; }

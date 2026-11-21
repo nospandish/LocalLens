@@ -25,6 +25,40 @@ function escapeHtml(value) {
   })[character]);
 }
 
+const collectionFieldLabels = [
+  ["name", "Name"],
+  ["address", "Address"],
+  ["cuisine", "Cuisine"],
+  ["price", "Price"],
+  ["status", "Opening status"],
+  ["crowd", "Crowd"],
+  ["vibe", "Vibe"],
+  ["reviews", "Review clues"],
+];
+
+function collectionValue(restaurant, field) {
+  const fields = restaurant.collection?.fields;
+  const hasField = fields && Object.prototype.hasOwnProperty.call(fields, field);
+  const timestamp = hasField ? fields[field] : (restaurant.isLive ? restaurant.fetchedAt : null);
+  const source = restaurant.collection?.source || restaurant.sourceName || "live source";
+  if (!timestamp) return restaurant.isLive ? `Not available from ${source}` : "Demo data · not collected live";
+
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return `Collected from ${source}`;
+  return `Collected ${date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`;
+}
+
+function collectionMarkup(restaurant) {
+  const source = restaurant.collection?.source || restaurant.sourceName || "Demo sample";
+  return `
+    <details class="collection-details">
+      <summary>When was this info collected?</summary>
+      <p class="collection-source">Source: ${escapeHtml(source)}</p>
+      <dl class="collection-list">${collectionFieldLabels.map(([field, label]) => `
+        <div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(collectionValue(restaurant, field))}</dd></div>`).join("")}</dl>
+    </details>`;
+}
+
 function setFormFromState() {
   const { neighborhood, food, restaurant, budget, groupSize } = state.preferences;
   elements.neighborhood.value = neighborhood;
@@ -103,6 +137,7 @@ function cardMarkup(restaurant, compareIds) {
         <span class="card-status">${escapeHtml(restaurant.status)}</span>
       </div>
       <div class="crowd-row"><span class="info-chip">Crowd: ${escapeHtml(restaurant.crowd)}</span></div>
+      ${collectionMarkup(restaurant)}
       <div>${restaurant.labels.map((label) => `<span class="vibe-label">${escapeHtml(label)}</span> `).join("")}</div>
       <h4>Vibe</h4>
       <p>${escapeHtml(restaurant.vibe)}</p>

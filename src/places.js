@@ -50,6 +50,10 @@ function labelReviewGroups(reviews) {
   return labeled.length ? labeled : [{ label: "review clues limited", clues: ["Google Places returned reviews, but not enough matching wording for a label."] }];
 }
 
+function collection(source, fetchedAt, fields) {
+  return { source, fetchedAt, fields };
+}
+
 function mapPlace(place, fetchedAt) {
   const reviews = Array.isArray(place.reviews) ? place.reviews : [];
   const name = place.displayName?.text || "Unnamed restaurant";
@@ -75,6 +79,16 @@ function mapPlace(place, fetchedAt) {
     sourceName: "Google Maps",
     isLive: true,
     fetchedAt,
+    collection: collection("Google Maps", fetchedAt, {
+      name: fetchedAt,
+      cuisine: fetchedAt,
+      price: fetchedAt,
+      address: fetchedAt,
+      status: fetchedAt,
+      crowd: null,
+      vibe: reviews.length ? fetchedAt : null,
+      reviews: reviews.length ? fetchedAt : null,
+    }),
   };
 }
 
@@ -100,6 +114,16 @@ function mapOpenStreetMapPlace(place, fetchedAt) {
     sourceName: "OpenStreetMap",
     isLive: true,
     fetchedAt,
+    collection: collection("OpenStreetMap", fetchedAt, {
+      name: fetchedAt,
+      cuisine: fetchedAt,
+      price: null,
+      address: fetchedAt,
+      status: null,
+      crowd: null,
+      vibe: null,
+      reviews: null,
+    }),
   };
 }
 

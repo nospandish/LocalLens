@@ -37,6 +37,7 @@
 - Review clues are now grouped under visible labels such as `quiet`, `good for groups`, and `usually crowded`.
 - Verified the side-by-side comparison flow: two selected cards render together with their own vibe, crowd clue, labels, and data status; a third selection is blocked.
 - Added AI input-handling rules for missing details, vague or unclear restaurant requests, off-topic questions, and unsafe requests.
+- Added a per-card collection details panel. Live place fields show when they were collected; unavailable fields and made-up demo fields are labeled clearly instead of receiving invented timestamps.
 - Demo restaurant cards now reorder based on the neighborhood, food, budget, group size, and optional restaurant name entered in the form.
 - If the local AI message appears, fill in `KEYGEN_URL` and `KEYGEN_TOKEN` in `.env` and restart `node server.js`; on Vercel, add those two variables in Project Settings and redeploy. Request failures include a safe user message and a separate fix that is logged by the server.
 
@@ -44,7 +45,6 @@ Saves on this computer only for now.
 
 ## Maybe Later
 
-- The user can see when each piece of restaurant info was collected.
 - The user can see what evidence the AI used for each label.
 - The user can filter places by what they want, like quiet or fast.
 - The user can ask which time of day is usually least crowded.
