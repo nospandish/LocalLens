@@ -6,8 +6,9 @@
 2. OpenStreetMap live place search is the default and does not need a billing key.
 3. Optionally set `PLACES_PROVIDER=google` with `GOOGLE_PLACES_API_KEY=...` if a billing-enabled Google project is available.
 4. Optionally set `OPENAI_MODEL=...`; the default is `gpt-6-luna` because no model was previously recorded.
-5. Run `node server.js`.
-6. Open `http://localhost:3000` in a browser.
+5. MindDo key access currently includes `gpt-5.6-luna` (found through `getKey()` and the OpenAI models list).
+6. Run `node server.js`.
+7. Open `http://localhost:3000` in a browser.
 
 ## How to put it online with Vercel
 
