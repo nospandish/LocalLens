@@ -5,7 +5,7 @@
 1. Put `KEYGEN_URL=...` and `KEYGEN_TOKEN=...` in the local `.env` file for the AI key service. The server gets the short-lived AI key through `getKey()`; the browser never sees the key or token.
 2. OpenStreetMap live place search is the default and does not need a billing key.
 3. Optionally set `PLACES_PROVIDER=google` with `GOOGLE_PLACES_API_KEY=...` if a billing-enabled Google project is available.
-4. Optionally set `OPENAI_MODEL=...`; the default is `gpt-6-luna` because no model was previously recorded.
+4. The requested model is `gpt-6-luna`; set `OPENAI_MODEL=gpt-6-luna` locally or in Vercel when using that model.
 5. MindDo key access currently includes `gpt-5.6-luna` (found through `getKey()` and the OpenAI models list).
 6. Run `node server.js`.
 7. Open `http://localhost:3000` in a browser.
